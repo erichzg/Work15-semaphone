@@ -30,7 +30,8 @@ int main() {
 
   char to_write[256];
   fgets(to_write, 256, stdin);
-  write(filed, to_write, 256);
+  *line_size = strlen(to_write);
+  write(filed, to_write, *line_size);
   close(filed);
-  shmdt(shmd);
+  shmdt(line_size);
 }

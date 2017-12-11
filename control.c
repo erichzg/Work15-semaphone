@@ -4,6 +4,7 @@
 #include <sys/ipc.h>
 #include <sys/sem.h>
 #include <sys/shm.h>
+#include <sys/stat.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -18,6 +19,9 @@ int main(int argc, char* argv[]) {
     else {
       int fd = shmget(KEY, 8, 0644 | IPC_CREAT | IPC_EXCL);
       printf("Shared memory created: %d\n", fd);
+      int * line_size = shmat(fd, 0, 0);
+      *line_size = 0;
+      shmdt(line_size);
       printf("Semaphore created: %d\n", sd);
       int filed = open("story.txt", O_CREAT | O_EXCL, 0644);
       printf("File created\n");
@@ -26,18 +30,8 @@ int main(int argc, char* argv[]) {
   }
 
   else if(!strcmp(argv[1], "-v")) {
-    int sd = semget(KEY, 1, 0644);
-    struct sembuf operation;
-    operation.sem_num = 0;
-    operation.sem_op = -1;
-    operation.sem_flg = SEM_UNDO;
-    semop(sd, &operation, 1);
-    
-    int filed = open("story.txt", O_RDONLY);
-    char story[256];
-    read(filed, story, 256);
-    close(filed);
-    printf("Story so far:\n%s\n", story);
+    printf("Story so far:\n");
+    execlp("cat", "cat", "story.txt", NULL);
   }
 
   else if(!strcmp(argv[1], "-r")) {
